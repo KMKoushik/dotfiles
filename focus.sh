@@ -14,7 +14,9 @@ SITES=(
     "instagram.com"
     "www.instagram.com"
     "x.com"
-    "www.x.com"  
+    "www.x.com"
+    "youtube.com"
+    "www.youtube.com"    
 )
 
 enable_focus() {
