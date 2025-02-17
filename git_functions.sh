@@ -7,3 +7,7 @@ fpush () {
 	push --force-with-lease
 }
 
+commit() {
+	git add .
+	git commit -m "$1"
+}
