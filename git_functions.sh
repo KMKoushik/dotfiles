@@ -8,7 +8,8 @@ p() {
 }
 
 fpush () {
-	push --force-with-lease
+	local branch=$(git symbolic-ref --short HEAD)
+	git push origin "$branch" --force-with-lease
 }
 
 fp() {
