@@ -35,3 +35,20 @@ rb() {
 	rebase "$1"
 }
 
+
+cpr() {
+	git fetch origin pull/"$1"/head:"external-pr-$1"
+	git switch external-pr-"$1"
+}
+
+branch() {
+	local branch_name="$1"
+	if ! git checkout -b "$branch_name"; then
+		git checkout "$branch_name"
+	fi
+}
+
+b() {
+	branch "$1"
+}
+
