@@ -43,8 +43,24 @@ cpr() {
 
 branch() {
 	local branch_name="$1"
-	if ! git checkout -b "$branch_name"; then
-		git checkout "$branch_name"
+	local date=$(date +%Y-%m-%d)
+	local formatted_branch="km/$date-$branch_name"
+	
+	# Check for existing branches with similar name
+	local existing_branch=$(git branch | grep "km/.*-$branch_name" | tr -d '[:space:]' | head -n1)
+	
+	if [ -n "$existing_branch" ]; then
+		printf "Found existing branch '%s'. Use this instead? [Y/n] " "$existing_branch"
+		read response
+		response=${response:-Y}  # Default to Y if empty
+		if [[ "$response" =~ ^[Yy]$ ]]; then
+			git checkout "$existing_branch"
+			return
+		fi
+	fi
+
+	if ! git checkout -b "$formatted_branch"; then
+		git checkout "$formatted_branch"
 	fi
 }
 
