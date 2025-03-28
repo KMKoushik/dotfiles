@@ -35,6 +35,11 @@ rb() {
 	rebase "$1"
 }
 
+cp() {
+	commit "update"
+	push
+}
+
 
 cpr() {
 	git fetch origin pull/"$1"/head:"external-pr-$1"
