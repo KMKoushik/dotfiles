@@ -7,3 +7,7 @@ function o() {
 		open "$@";
 	fi;
 }
+
+function csvcount() {
+	python -c "import csv, sys; print(sum(1 for row in csv.reader(sys.stdin)))" < "$1"
+}
