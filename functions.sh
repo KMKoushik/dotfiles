@@ -9,5 +9,5 @@ function o() {
 }
 
 function csvcount() {
-	python -c "import csv, sys; print(sum(1 for row in csv.reader(sys.stdin)))" < "$1"
+	python -c "import csv, sys; csv.field_size_limit(sys.maxsize); print(sum(1 for row in csv.reader(sys.stdin)))" < "$1"
 }
