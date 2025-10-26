@@ -4,3 +4,19 @@
 
 [core]
     editor = "nvim"
+    fsmonitor = true
+
+[branch]
+    sort = "-committerdate"
+
+[fetch]
+    prune = true
+
+[pull]
+    rebase = true
+
+[rebase]
+    updateRefs = true
+
+[rerere]
+    enabled = true

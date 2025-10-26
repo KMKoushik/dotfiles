@@ -17,7 +17,6 @@
 
   # Create ~/.config and ~/.config/git
   mkdir -p ~/.config/git
-
   # If repo contains ./config/git, install it into ~/.config/git
   if [ -d ./config/git ]; then
     echo "Installing git config files to ~/.config/git"
