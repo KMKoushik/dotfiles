@@ -15,13 +15,19 @@
     fi
   done;
 
-  # Create ~/.config and ~/.config/git
-  mkdir -p ~/.config/git
-  # If repo contains ./config/git, install it into ~/.config/git
-  if [ -d ./config/git ]; then
-    echo "Installing git config files to ~/.config/git"
-    for item in ./config/git/*; do
-      [ -e "$item" ] || continue
-      cp -R "$item" ~/.config/git/
+  # Create ~/.config directory
+  mkdir -p ~/.config
+  
+  # Install all config folders from ./config to ~/.config
+  if [ -d ./config ]; then
+    for config_dir in ./config/*; do
+      [ -d "$config_dir" ] || continue
+      config_name=$(basename "$config_dir")
+      echo "Installing $config_name config files to ~/.config/$config_name"
+      mkdir -p ~/.config/$config_name
+      for item in "$config_dir"/*; do
+        [ -e "$item" ] || continue
+        cp -R "$item" ~/.config/$config_name/
+      done
     done
   fi
