@@ -1,3 +1,8 @@
+pull() {
+    local branch=$(git symbolic-ref --short HEAD)
+	git pull origin "$branch"
+}
+
 push () {
 	local branch=$(git symbolic-ref --short HEAD)
 	git push origin "$branch"
@@ -45,10 +50,10 @@ branch() {
 	local branch_name="$1"
 	local date=$(date +%Y-%m-%d)
 	local formatted_branch="km/$date-$branch_name"
-	
+
 	# Check for existing branches with similar name
 	local existing_branch=$(git branch | grep "km/.*-$branch_name" | tr -d '[:space:]' | head -n1)
-	
+
 	if [ -n "$existing_branch" ]; then
 		printf "Found existing branch '%s'. Use this instead? [Y/n] " "$existing_branch"
 		read response
@@ -67,4 +72,3 @@ branch() {
 b() {
 	branch "$1"
 }
-

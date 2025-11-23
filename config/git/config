@@ -9,8 +9,6 @@
 [branch]
     sort = "-committerdate"
 
-[fetch]
-    prune = true
 
 [pull]
     rebase = true
