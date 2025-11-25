@@ -16,3 +16,11 @@ function csvcount() {
 function cdx() {
 	codex -m gpt-5-codex
 }
+
+function killport() {
+	if [ $# -eq 0 ]; then
+		echo "Usage: killport <port>"
+		return 1
+	fi
+	lsof -ti:$1 | xargs kill -9
+}
