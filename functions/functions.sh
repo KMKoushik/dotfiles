@@ -24,3 +24,7 @@ function killport() {
 	fi
 	lsof -ti:$1 | xargs kill -9
 }
+
+function fzlog() {
+    fzf --tail 100000 --tac --no-sort --exact --wrap --bind 'ctrl-c:abort'
+}
