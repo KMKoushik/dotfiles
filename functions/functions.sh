@@ -28,3 +28,21 @@ function killport() {
 function fzlog() {
     fzf --tail 100000 --tac --no-sort --exact --wrap --bind 'ctrl-c:abort'
 }
+
+# Directory navigation aliases for dawn project
+function cdd() {
+	cd ~/Documents/dawn/dawn
+}
+
+function cddd() {
+	cd ~/Documents/dawn/dawn/apps/dawn
+}
+
+function cddc() {
+	cd ~/Documents/dawn/dawn/apps/client
+}
+
+# Directory navigation alias for useSend project
+function cdu() {
+	cd ~/Documents/usesend/useSend
+}
