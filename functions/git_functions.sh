@@ -4,12 +4,15 @@ pull() {
 }
 
 push () {
+	if [ -n "$1" ]; then
+		commit "$1"
+	fi
 	local branch=$(git symbolic-ref --short HEAD)
 	git push origin "$branch"
 }
 
 p() {
-	push
+	push "$1"
 }
 
 fpush () {
