@@ -46,3 +46,8 @@ function cddc() {
 function cdu() {
 	cd ~/Documents/usesend/useSend
 }
+
+# Play a glass sound notification
+function ting() {
+	afplay /System/Library/Sounds/Glass.aiff
+}
