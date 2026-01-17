@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-openai-codex-auth@4.1.0"],
+  "plugin": ["opencode-openai-codex-auth@4.1.0", "@franlol/opencode-md-table-formatter@0.0.3"],
   "provider": {
     "openai": {
       "options": {
