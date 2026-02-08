@@ -75,3 +75,146 @@ branch() {
 b() {
 	branch "$1"
 }
+
+gw() {
+	local command="$1"
+
+	case "$command" in
+		add)
+			local name="$2"
+			if [ -z "$name" ]; then
+				echo "Usage: gw add <name>"
+				return 1
+			fi
+
+			if [[ "$name" == */* ]]; then
+				echo "gw: name cannot contain '/'. Use a simple name like feature-xyz"
+				return 1
+			fi
+
+			if ! git check-ref-format --branch "$name" >/dev/null 2>&1; then
+				echo "gw: invalid branch name: $name"
+				return 1
+			fi
+
+			local common_git_dir
+			common_git_dir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || {
+				echo "gw: not inside a git repository"
+				return 1
+			}
+
+			local repo_root
+			repo_root=$(dirname "$common_git_dir")
+
+			local project
+			project=$(basename "$repo_root")
+			local parent_dir
+			parent_dir=$(dirname "$repo_root")
+			local worktree_path
+			worktree_path="$parent_dir/$project-$name"
+
+			if [ -e "$worktree_path" ]; then
+				echo "gw: worktree path already exists: $worktree_path"
+				return 1
+			fi
+
+			if git show-ref --verify --quiet "refs/heads/$name"; then
+				git worktree add -- "$worktree_path" "$name" || return 1
+			else
+				git worktree add -b "$name" -- "$worktree_path" || return 1
+			fi
+
+			cd "$worktree_path" || return 1
+			;;
+
+		rm)
+			local name_or_path="$2"
+			if [ -z "$name_or_path" ]; then
+				echo "Usage: gw rm <name|path>"
+				return 1
+			fi
+
+			local target_path="$name_or_path"
+			if [[ "$name_or_path" != */* ]]; then
+				local common_git_dir
+				common_git_dir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || {
+					echo "gw: not inside a git repository"
+					return 1
+				}
+
+				local repo_root
+				repo_root=$(dirname "$common_git_dir")
+
+				local project
+				project=$(basename "$repo_root")
+				local parent_dir
+				parent_dir=$(dirname "$repo_root")
+				target_path="$parent_dir/$project-$name_or_path"
+			fi
+
+			git worktree remove -- "$target_path"
+			;;
+
+		ls)
+			git worktree list
+			;;
+
+		go)
+			local name_or_path="$2"
+
+			local common_git_dir
+			common_git_dir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || {
+				echo "gw: not inside a git repository"
+				return 1
+			}
+
+			local repo_root
+			repo_root=$(dirname "$common_git_dir")
+
+			if [ -z "$name_or_path" ]; then
+				cd "$repo_root" || return 1
+				return 0
+			fi
+
+			local target_path="$name_or_path"
+			if [[ "$name_or_path" != */* ]]; then
+				local worktree_line
+				local current_worktree_path
+				local matched_worktree_path
+				while IFS= read -r worktree_line; do
+					case "$worktree_line" in
+						worktree\ *)
+							current_worktree_path=${worktree_line#worktree }
+							;;
+						"branch refs/heads/$name_or_path")
+							matched_worktree_path="$current_worktree_path"
+							break
+							;;
+					esac
+				done < <(git worktree list --porcelain)
+
+				if [ -n "$matched_worktree_path" ]; then
+					target_path="$matched_worktree_path"
+				else
+					local project
+					project=$(basename "$repo_root")
+					local parent_dir
+					parent_dir=$(dirname "$repo_root")
+					target_path="$parent_dir/$project-$name_or_path"
+				fi
+			fi
+
+			if [ ! -d "$target_path" ]; then
+				echo "gw: worktree directory does not exist: $target_path"
+				return 1
+			fi
+
+			cd "$target_path" || return 1
+			;;
+
+		*)
+			echo "Usage: gw <add|rm|ls|go> [name]"
+			return 1
+			;;
+	esac
+}
