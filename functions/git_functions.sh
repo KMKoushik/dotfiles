@@ -106,6 +106,12 @@ gw() {
 			local repo_root
 			repo_root=$(dirname "$common_git_dir")
 
+			local source_root
+			source_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+				echo "gw: unable to determine current worktree root"
+				return 1
+			}
+
 			local project
 			project=$(basename "$repo_root")
 			local parent_dir
@@ -123,6 +129,18 @@ gw() {
 			else
 				git worktree add -b "$name" -- "$worktree_path" || return 1
 			fi
+
+			local env_file
+			while IFS= read -r -d '' env_file; do
+				local relative_env_path
+				relative_env_path=${env_file#"$source_root"/}
+
+				local destination_env_path
+				destination_env_path="$worktree_path/$relative_env_path"
+
+				mkdir -p "$(dirname "$destination_env_path")" || return 1
+				cp "$env_file" "$destination_env_path" || return 1
+			done < <(find "$source_root" -type d -name .git -prune -o -type f -name '.env' -print0)
 
 			cd "$worktree_path" || return 1
 			;;
