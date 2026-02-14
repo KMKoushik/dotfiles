@@ -236,3 +236,79 @@ gw() {
 			;;
 	esac
 }
+
+_gw_worktree_names() {
+	local common_git_dir repo_root project
+	common_git_dir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 0
+	repo_root=$(dirname "$common_git_dir")
+	project=$(basename "$repo_root")
+
+	git worktree list --porcelain 2>/dev/null | while IFS= read -r worktree_line; do
+		case "$worktree_line" in
+			worktree\ *)
+				local worktree_path worktree_base worktree_name
+				worktree_path=${worktree_line#worktree }
+				worktree_base=$(basename "$worktree_path")
+
+				case "$worktree_base" in
+					"$project")
+						continue
+						;;
+					"$project"-*)
+						worktree_name=${worktree_base#"$project"-}
+						;;
+					*)
+						worktree_name="$worktree_base"
+						;;
+				esac
+
+				[ -n "$worktree_name" ] || continue
+				printf '%s\n' "$worktree_name"
+				;;
+		esac
+	done
+}
+
+if [ -n "${ZSH_VERSION:-}" ]; then
+	_gw_completion_zsh() {
+		if [ "$CURRENT" -eq 2 ]; then
+			compadd -- add rm ls go
+			return 0
+		fi
+
+		case "${words[2]}" in
+			go|rm)
+				while IFS= read -r worktree_name; do
+					[ -n "$worktree_name" ] || continue
+					compadd -- "$worktree_name"
+				done < <(_gw_worktree_names)
+				;;
+		esac
+	}
+
+	if command -v compdef >/dev/null 2>&1; then
+		compdef _gw_completion_zsh gw
+	fi
+fi
+
+if [ -n "${BASH_VERSION:-}" ]; then
+	_gw_completion_bash() {
+		local current_word subcommand
+		COMPREPLY=()
+		current_word="${COMP_WORDS[COMP_CWORD]}"
+		subcommand="${COMP_WORDS[1]}"
+
+		if [ "$COMP_CWORD" -eq 1 ]; then
+			COMPREPLY=( $(compgen -W "add rm ls go" -- "$current_word") )
+			return 0
+		fi
+
+		case "$subcommand" in
+			go|rm)
+				COMPREPLY=( $(compgen -W "$(_gw_worktree_names)" -- "$current_word") )
+				;;
+		esac
+	}
+
+	complete -F _gw_completion_bash gw
+fi
