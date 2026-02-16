@@ -45,8 +45,22 @@ rb() {
 
 
 cpr() {
-	git fetch origin pull/"$1"/head:"external-pr-$1"
-	git switch external-pr-"$1"
+	if [ -z "$1" ]; then
+		echo "Usage: cpr <pr-number>"
+		return 1
+	fi
+
+	local pr_number="$1"
+	local pr_branch="external-pr-$pr_number"
+
+	git fetch origin "pull/$pr_number/head" || return 1
+
+	if git show-ref --verify --quiet "refs/heads/$pr_branch"; then
+		git switch "$pr_branch" || return 1
+		git merge --ff-only FETCH_HEAD
+	else
+		git switch -c "$pr_branch" FETCH_HEAD
+	fi
 }
 
 branch() {
