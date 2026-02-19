@@ -4,6 +4,13 @@
     "@franlol/opencode-md-table-formatter@0.0.3",
     "opencode-gemini-auth@latest"
   ],
+  "command": {
+    "commit": {
+      "description": "Commit, push, and open PR if needed",
+      "model": "opencode/kimi-k2.5",
+      "template": "Handle the current git changes end-to-end.\n\nRequirements:\n1) Inspect the repo state (`git status`, staged and unstaged diff, and recent commit messages) before committing.\n2) Stage all relevant tracked and untracked files for this change.\n3) Create one concise commit message that reflects why the change was made. If $ARGUMENTS is provided, use it as guidance for the message.\n4) Push the current branch to origin, setting upstream if needed.\n5) Check whether there is already an open pull request for the current branch.\n6) If no open pull request exists, create one with a clear title and short summary body based on all commits in this branch since it diverged from main.\n7) Return the final result with: commit hash, branch name, push result, and PR URL (existing or newly created).\n\nRules:\n- Do not use force push.\n- Do not amend commits unless explicitly requested.\n- Do not include secrets or obvious credential files in the commit."
+    }
+  },
   "permission": {
     "websearch": "allow"
   }
