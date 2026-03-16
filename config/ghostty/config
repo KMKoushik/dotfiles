@@ -1,0 +1,21 @@
+theme = "light:Catppuccin Latte,dark:Catppuccin Mocha"
+font-family = "MesloLGS Nerd Font Mono"
+font-size = 14
+
+cursor-style = block
+cursor-style-blink = true
+
+window-padding-x = 10
+window-padding-y = 8
+background-opacity = 0.93
+background-blur-radius = 12
+
+copy-on-select = true
+clipboard-trim-trailing-spaces = true
+confirm-close-surface = false
+
+macos-option-as-alt = true
+macos-titlebar-style = tabs
+
+shell-integration = zsh
+shell-integration-features = cursor,sudo,title
