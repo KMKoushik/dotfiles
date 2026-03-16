@@ -24,50 +24,6 @@ ensure_line_in_file() {
   fi
 }
 
-install_homebrew() {
-  if [ "$(uname -s)" != "Darwin" ]; then
-    return
-  fi
-
-  if command -v brew >/dev/null 2>&1; then
-    return
-  fi
-
-  log "Installing Homebrew"
-  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-}
-
-setup_homebrew_env() {
-  if command -v brew >/dev/null 2>&1; then
-    eval "$(brew shellenv)"
-    return
-  fi
-
-  if [ -x "/opt/homebrew/bin/brew" ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-    return
-  fi
-
-  if [ -x "/usr/local/bin/brew" ]; then
-    eval "$(/usr/local/bin/brew shellenv)"
-  fi
-}
-
-install_brew_packages() {
-  if ! command -v brew >/dev/null 2>&1; then
-    warn "Homebrew is unavailable; skipping Brewfile packages"
-    return
-  fi
-
-  local brewfile="$DOTFILES_DIR/Brewfile"
-  if [ ! -f "$brewfile" ]; then
-    return
-  fi
-
-  log "Installing Brewfile packages"
-  brew bundle --file="$brewfile" --no-upgrade
-}
-
 install_oh_my_zsh() {
   if [ -d "$HOME/.oh-my-zsh" ]; then
     return
@@ -158,14 +114,17 @@ configure_shell_startup() {
 main() {
   log "Installing koushik's dotfiles"
 
+  if [ "${EUID:-$(id -u)}" -eq 0 ]; then
+    warn "Do not run this installer with sudo/root (Homebrew will fail)."
+    warn "Run as your normal user: bash install.sh"
+    exit 1
+  fi
+
   if [ -f "$DOTFILES_DIR/.env" ]; then
     # shellcheck disable=SC1091
     source "$DOTFILES_DIR/.env"
   fi
 
-  install_homebrew
-  setup_homebrew_env
-  install_brew_packages
   install_oh_my_zsh
   install_oh_my_zsh_plugins
   install_zsh_functions
@@ -174,7 +133,7 @@ main() {
 
   if [ "${INSTALL_FOCUS:-0}" = "1" ]; then
     log "Installing focus utility"
-    bash "$DOTFILES_DIR/functions/focus.sh"
+    sudo bash "$DOTFILES_DIR/functions/focus.sh"
   fi
 
   log "Done. Restart your terminal or run: source ~/.zshrc"
